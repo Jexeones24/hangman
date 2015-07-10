@@ -1,15 +1,18 @@
 <html>
   <head>
     <style>
+      body {
+        background-color: #<%= color %>;
+      }
     </style>
   </head>
   <body>
-    <p>
-      <%= init_prompt %>
-    </p>
     <form>
-      <input type='text' name='difficulty' />
+      <input type='text' name='guess' />
       <input type='submit' value='Word Length' />
     </form>
+    <p>
+      <%= message %>
+    </p>
   </body>
 </html>
