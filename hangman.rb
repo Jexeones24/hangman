@@ -33,8 +33,8 @@ get '/' do
   #check for proper user difficulty inputs (must be integer in (2..28))
   if !settings.proper_difficulty
     if params["difficulty"] && params["difficulty"] != ""
-      if settings.all_difficulty.include? (params["difficulty"].to_i) &&
-        (params["difficulty"].length == 1)
+      if (settings.all_difficulty.include? (params["difficulty"].to_i)) &&
+        (/\A\d+\z/ === params["difficulty"])
         settings.difficulty = params["difficulty"].to_i
         find_word(params["difficulty"].to_i)
         settings.proper_difficulty = true
