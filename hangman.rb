@@ -1,5 +1,6 @@
-#require 'sinatra'
-#require 'sinatra/reloader'
+require 'rubygems'
+require 'sinatra'
+require 'sinatra/reloader'
 
 #initialization
 set :prompt, "Set difficulty. Enter an integer (between 2 and 28, "\
