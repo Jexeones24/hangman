@@ -2,34 +2,41 @@
   <head>
     <title>Hangman</title>
     <style>
-      #wrong {
+      .center {
+        text-align: center;
+      }
+      p#wrong {
         color: #<%= color %>;
         font-weight: bold;
       }
     </style>
   </head>
   <body>
-    <p id="wrong">
+    <p id="wrong" class="center">
       <%= error_guess %>
     </p>
-    <p id="wrong">
+    <p id="wrong" class="center">
       <%= correct_msg %>
     </p>
-    <form>
+    <form class="center">
       <input type='text' name='guess' />
       <input type='submit' value='Guess Letter' />
     </form>
-    <p>
+    <p class="center">
       <%= guess_msg %>
-    </p>
-    <p>
+    </p class="center">
+    <p id="prog" class="center">
       <%= progress %>
     </p>
-    <p>
+    <p class="center">
       <%= bad_guess_msg %>
     </p>
-    <p>
+    <p class="center">
       <%= message %>
+    </p>
+    <p class="center">
+      Restart: type "restart" and click the "Guess Letter" button at anytime to
+      restart the game
     </p>
   </body>
 </html>

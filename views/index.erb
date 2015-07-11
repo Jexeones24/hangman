@@ -2,18 +2,30 @@
   <head>
     <title>Hangman</title>
     <style>
+      .center {
+        text-align: center;
+      }
     </style>
   </head>
   <body>
-    <h1>Let's Play Hangman!</h1>
-    <p>
+    <h1 class="center">Let's Play Hangman!</h1>
+    <p class="center">
       <%= init_prompt %>
     </p>
-    <form>
+    <form class="center">
       <input type='text' name='difficulty' />
       <input type='submit' value='Word Length' />
     </form>
-    <p>
+    <p class="center">
+      Cheat Mode: add "&cheat=true" to the end of the url above to activate it
+    </p>
+    <p class="center">
+      Note: using cheat mode before any guessing will not consume any guesses
+      and each use of cheat mode anytime after the first guess will consume
+      a remaining guess, so this means you will automatically lose if you use it
+      when you have a single remaining guess left
+    </p>
+    <p class="center">
       <%= error_difficulty %>
     </p>
   </body>

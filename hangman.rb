@@ -2,7 +2,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 
 #initialization
-set :prompt, "Set the difficulty. Enter an integer (between 2 and 28, "\
+set :prompt, "Set difficulty. Enter an integer (between 2 and 28, "\
 "inclusive) to set number of letters in target word:"
 set :all_letters, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 set :all_difficulty, (2..28)
@@ -33,7 +33,8 @@ get '/' do
   #check for proper user difficulty inputs (must be integer in (2..28))
   if !settings.proper_difficulty
     if params["difficulty"] && params["difficulty"] != ""
-      if settings.all_difficulty.include? (params["difficulty"].to_i)
+      if settings.all_difficulty.include? (params["difficulty"].to_i) &&
+        (params["difficulty"].length == 1)
         settings.difficulty = params["difficulty"].to_i
         find_word(params["difficulty"].to_i)
         settings.proper_difficulty = true
@@ -77,7 +78,8 @@ get '/' do
       " Your guess won't count otherwise!"
       guess_msg += settings.guess_remain.to_s
     end
-  elsif settings.guess_remain <= 0
+  end
+  if settings.guess_remain <= 0
     guess_msg += "0"
     correct_msg = "You've lost your 5 guesses! The word was: #{settings.word}."\
     " Type \"restart\" and click the \"Guess Letter\" button to restart!"
@@ -88,7 +90,10 @@ get '/' do
   end
 
   #Rendering proper ERB templates
-  message += " CHEAT SOLUTION: #{settings.word}" if settings.cheat_condition
+  if settings.cheat_condition
+    message += " CHEAT SOLUTION: #{settings.word}"
+    settings.guess_remain += 1
+  end
   init_prompt = settings.prompt
   progress = display_progress
   bad_guess_msg = "Incorrect guesses: " + bad_guess_tally
@@ -124,7 +129,7 @@ end
 
 #displays the game progress
 def display_progress
-  disp = ""
+  disp = "" + "#{settings.difficulty} characters: "
   settings.state.each_with_index do |item, index|
     if item == false
       disp += "__ "
@@ -178,5 +183,4 @@ def reset_everything
   settings.correct_guess = false
   settings.bad_guess.clear
   settings.proper_difficulty = false
-  settings.restart = ""
 end
