@@ -1,13 +1,18 @@
 <html>
   <head>
+    <title>Hangman</title>
     <style>
+      #wrong {
+        color: #<%= color %>;
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
-    <p>
+    <p id="wrong">
       <%= error_guess %>
     </p>
-    <p>
+    <p id="wrong">
       <%= correct_msg %>
     </p>
     <form>
@@ -24,7 +29,7 @@
       <%= bad_guess_msg %>
     </p>
     <p>
-      <%= answer %>
+      <%= message %>
     </p>
   </body>
 </html>
