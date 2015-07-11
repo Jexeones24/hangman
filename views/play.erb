@@ -1,18 +1,21 @@
 <html>
   <head>
     <style>
-      body {
-        background-color: #<%= color %>;
-      }
     </style>
   </head>
   <body>
+    <p>
+      <%= error_guess %>
+    </p>
     <form>
       <input type='text' name='guess' />
-      <input type='submit' value='Word Length' />
+      <input type='submit' value='Guess Letter' />
     </form>
     <p>
       <%= message %>
+    </p>
+    <p>
+      <%= guess_msg %>
     </p>
   </body>
 </html>
