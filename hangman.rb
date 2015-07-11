@@ -1,5 +1,5 @@
 require 'sinatra'
-require 'sinatra/reloader'
+#require 'sinatra/reloader'
 
 #initialization
 set :prompt, "Set difficulty. Enter an integer (between 2 and 28, "\

@@ -1,4 +1,4 @@
 require './hangman'
 require 'rubygems'
-retuire 'sinatra'
+require 'sinatra'
 run Sinatra::Application
