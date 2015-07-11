@@ -3,10 +3,10 @@ require 'sinatra/reloader'
 
 #initialization
 set :secret_number, 1 + rand(99)
-set :prompt, "Set the difficulty. Enter an integer (between 1 and 29, "\
+set :prompt, "Set the difficulty. Enter an integer (between 2 and 28, "\
 "inclusive) to set number of letters in target word:"
 set :all_letters, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-set :all_difficulty, (1..29)
+set :all_difficulty, (2..28)
 
 set :bg_color, "FFFFFF"
 set :difficulty, nil
@@ -15,29 +15,33 @@ set :word, ""
 set :state, []
 set :guess_remain, 5
 set :proper_guess, false
+set :correct_guess, false
+set :bad_guess, Hash.new{0}
 set :proper_difficulty, false
 
 get '/' do
   error_difficulty = ""
   error_guess = ""
+  correct_msg = ""
   guess_msg = "Guesses Remaining: "
   message = ""
 
-  #check user difficulty inputs (must be integer in (1..29))
-  #if !settings.proper_difficulty
+  #check for proper user difficulty inputs (must be integer in (2..28))
+  if !settings.proper_difficulty
     if params["difficulty"] && params["difficulty"] != ""
       if settings.all_difficulty.include? (params["difficulty"].to_i)
         settings.difficulty = params["difficulty"].to_i
         find_word(params["difficulty"].to_i)
         settings.proper_difficulty = true
+        #settings.bad_guess.clear
       else
         error_difficulty = "Error: Input not valid! Please enter an integer"\
-        " between 1 and 29, inclusive!"
+        " between 2 and 28, inclusive!"
       end
     end
-  #end
+  end
 
-  #check user guess inputs (must be a single letter)
+  #check for proper user guess inputs (must be a single letter)
   not_empty_guess = params["guess"] && params["guess"] != ""
   if not_empty_guess
     if (settings.all_letters.include? params["guess"]) &&
@@ -51,10 +55,14 @@ get '/' do
   #check for cheat mode
   cheat_condition = params["cheat"].eql? "true"
 
-
   #Process Guesses
   if settings.proper_guess
     message = check_guess(params["guess"])
+    if settings.correct_guess
+      correct_msg += "Your guess, #{params["guess"]}, was correct!"
+    else
+      correct_msg += "#{params["guess"]} is incorrect..."
+    end
     color = settings.bg_color
     guess_msg += settings.guess_remain.to_s
   else
@@ -80,6 +88,7 @@ get '/' do
   message += " CHEAT SOLUTION: #{settings.secret_number}" if cheat_condition
   init_prompt = settings.prompt
   progress = display_progress
+  bad_guess_msg = "Incorrect guesses: " + bad_guess_tally
   answer = settings.word + ((settings.word).length.to_s) + " "
   answer += settings.difficulty.to_s
 
@@ -90,7 +99,9 @@ get '/' do
       :progress => progress,
       :error_guess => error_guess,
       :guess_msg => guess_msg,
-      :answer => answer
+      :answer => answer,
+      :correct_msg => correct_msg,
+      :bad_guess_msg => bad_guess_msg
     }
   else
     erb :index, :locals => {
@@ -126,15 +137,22 @@ def display_progress
   return disp
 end
 
-#process the guess
+#process the guess and update game info
 def check_guess(guess)
-  correct_guess = false
+  settings.correct_guess = false
   chars = settings.word.split("")
   chars.each_with_index do |c, index|
     if guess.eql? c
       settings.state[index] = true
-      correct_guess = true
+      settings.correct_guess = true
     end
   end
-  settings.guess_remain -= 1 if !correct_guess
+  if !settings.correct_guess
+    settings.bad_guess[guess] += 1
+  end
+end
+
+#returns a string of all bad guesses
+def bad_guess_tally
+  return settings.bad_guess.keys.to_s
 end
