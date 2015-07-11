@@ -11,7 +11,8 @@ set :all_difficulty, (1..29)
 set :bg_color, "FFFFFF"
 set :difficulty, nil
 set :dictionary, File.open("enable.txt", "r") { |file| file.readlines }
-set :word, {}
+set :word, ""
+set :state, []
 set :guess_remain, 5
 set :proper_guess, false
 set :proper_difficulty, false
@@ -23,7 +24,7 @@ get '/' do
   message = ""
 
   #check user difficulty inputs (must be integer in (1..29))
-  if !settings.proper_difficulty
+  #if !settings.proper_difficulty
     if params["difficulty"] && params["difficulty"] != ""
       if settings.all_difficulty.include? (params["difficulty"].to_i)
         settings.difficulty = params["difficulty"].to_i
@@ -34,7 +35,7 @@ get '/' do
         " between 1 and 29, inclusive!"
       end
     end
-  end
+  #end
 
   #check user guess inputs (must be a single letter)
   not_empty_guess = params["guess"] && params["guess"] != ""
@@ -48,13 +49,12 @@ get '/' do
   end
 
   #check for cheat mode
-  cheat_condition = params["cheat"] == "true"
+  cheat_condition = params["cheat"].eql? "true"
 
 
   #Process Guesses
   if settings.proper_guess
     message = check_guess(params["guess"])
-    settings.guess_remain -= 1
     color = settings.bg_color
     guess_msg += settings.guess_remain.to_s
   else
@@ -80,13 +80,17 @@ get '/' do
   message += " CHEAT SOLUTION: #{settings.secret_number}" if cheat_condition
   init_prompt = settings.prompt
   progress = display_progress
+  answer = settings.word + ((settings.word).length.to_s) + " "
+  answer += settings.difficulty.to_s
+
   if settings.proper_difficulty
     erb :play, :locals => {
       :message => message,
       :color => color,
       :progress => progress,
       :error_guess => error_guess,
-      :guess_msg => guess_msg
+      :guess_msg => guess_msg,
+      :answer => answer
     }
   else
     erb :index, :locals => {
@@ -97,24 +101,26 @@ get '/' do
   end
 end
 
-#finds random word of proper length then configures word as hash at app level
+#finds random word of proper length at app level
 def find_word(difficulty)
-  possible_words = settings.dictionary.select { |entry| entry.length == difficulty}
-  temp = possible_words[rand(possible_words.length)]
-  templength = temp.length
-  (0...templength).each do |x|
-    settings.word[temp[x]] = false
+  settings.word = ""
+  settings.state = []
+  #NEWLINE COUNTS AS A CHARACTER UGHHHH
+  possible_words = settings.dictionary.select { |entry| entry.length-1 == difficulty}
+  settings.word = possible_words[rand(possible_words.length)][0...-1]
+  (0...settings.word.length).each do |index|
+    settings.state[index] = false
   end
 end
 
 #displays the game progress
 def display_progress
   disp = ""
-  settings.word.each do |key, value|
-    if value == false
+  settings.state.each_with_index do |item, index|
+    if item == false
       disp += "__ "
     else
-      disp += "#{key} "
+      disp += "#{settings.word[index]} "
     end
   end
   return disp
@@ -122,23 +128,13 @@ end
 
 #process the guess
 def check_guess(guess)
-  msg = ""
-  if guess.to_i > settings.secret_number
-    msg = "Way too high!"
-  elsif guess.to_i < settings.secret_number
-    msg = "Way too low!"
-  else
-    msg = "The SECRET NUMBER is #{settings.secret_number}"
+  correct_guess = false
+  chars = settings.word.split("")
+  chars.each_with_index do |c, index|
+    if guess.eql? c
+      settings.state[index] = true
+      correct_guess = true
+    end
   end
-
-  guess_distance = (settings.secret_number - guess.to_i).abs
-  if guess_distance < 6 && guess_distance > 0
-    settings.bg_color = "FF5858"
-  elsif guess_distance >= 6
-    settings.bg_color = "FF0000"
-  else
-    settings.bg_color = "00FF00"
-  end
-
-  return msg
+  settings.guess_remain -= 1 if !correct_guess
 end
